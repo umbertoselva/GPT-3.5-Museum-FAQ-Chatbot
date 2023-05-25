@@ -1,9 +1,7 @@
 from langchain.prompts.prompt import PromptTemplate
-# from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain, ConversationalRetrievalChain
 from langchain.chains.question_answering import load_qa_chain
-# from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 
 
 # QA_PROMPT
@@ -52,7 +50,6 @@ def get_chain(vectorstore):
 
     # Set up LLM
     llm = ChatOpenAI(
-        # openai_api_key=OPENAI_API_KEY,
         model_name='gpt-3.5-turbo',
         temperature=0.0
     )
@@ -69,7 +66,6 @@ def get_chain(vectorstore):
         chain_type="stuff",
         prompt=QA_PROMPT
     )
-    # doc_chain = load_qa_with_sources_chain(llm, chain_type="map_reduce")
 
     # Set up chain
     qa_chain = ConversationalRetrievalChain(
