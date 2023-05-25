@@ -1,13 +1,8 @@
 import streamlit as st
 from streamlit_chat import message
-from langchain.chains import ConversationalRetrievalChain
 import pickle
 import os
-from utils.query import _template, QA_PROMPT, CONDENSE_QUESTION_PROMPT, get_chain
-
-
-# Get OpenAI API key
-api_key = os.getenv('OPENAI_KEY')
+from utils.query import get_chain
 
 
 # Open vectorstore with FAQ data
@@ -21,6 +16,7 @@ chain = get_chain(faq_vectorstore)
 
 # Streamlit App
 
+# Session states
 if "generated" not in st.session_state:
     st.session_state["generated"] = []
 if "past" not in st.session_state:
@@ -54,19 +50,10 @@ user_input = get_text()
 
 if user_input:
 
-    # perform similarity search over FAQ vectorstore
-    docs = faq_vectorstore.similarity_search(user_input)
-
     # generate output
     output = chain.run(
-        input=user_input,
-        vectorstore=faq_vectorstore,
-        context=docs[:2], # top 2 docs returned by similarity search
         chat_history=[],
         question=user_input,
-        QA_PROMPT=QA_PROMPT,
-        CONSENSE_QUESTION_PROMPT=CONDENSE_QUESTION_PROMPT,
-        template=_template
     )
 
     st.session_state.past.append(user_input)
