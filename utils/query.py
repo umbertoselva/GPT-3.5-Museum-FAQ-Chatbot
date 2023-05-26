@@ -29,7 +29,12 @@ QA_PROMPT = PromptTemplate(template=template, input_variables=["question", "cont
 
 # CONDENSE_QUESTION_PROMPT
 
-_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+_template = """
+Given the following conversation (Chat History) and a follow up question (Follow Up Input):
+- if the follow up question (Follow Up Input) actually refers to the preceding conversation (Chat History),
+then rephrase the follow up question (Follow Up Input) to be a standalone question;
+- if the follow up question (Follow Up Input) does not refer to the preceding conversation (Chat History),
+then just output the follow up question (Follow Up Input) without any change.
 You can assume the question to be about the Stedelijk Museum in Amsterdam or something mentioned in the chat history.
 
 Chat History:
@@ -48,26 +53,26 @@ CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
 
 def get_chain(vectorstore):
 
-    # Set up LLM
+    # Set up the LLM
     llm = ChatOpenAI(
         model_name='gpt-3.5-turbo',
         temperature=0.0
     )
 
-    # Set the condense question generator
+    # Set the condensed standalone question generator
     question_generator = LLMChain(
         llm=llm,
         prompt=CONDENSE_QUESTION_PROMPT
     )
 
-    # use the streaming LLM to create a question answering chain
+    # create a question answering chain
     doc_chain = load_qa_chain(
         llm=llm,
         chain_type="stuff",
         prompt=QA_PROMPT
     )
 
-    # Set up chain
+    # Combine all components into the main chain
     qa_chain = ConversationalRetrievalChain(
         retriever=vectorstore.as_retriever(),
         combine_docs_chain=doc_chain,
